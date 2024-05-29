@@ -1,46 +1,29 @@
-
+from openai import OpenAI
 import streamlit as st
-import pandas as pd
-import altair as alt
-import numpy as np
-import matplotlib.pyplot as plt
 
-# Cargar los datos
-@st.cache
-def load_data():
-    data = pd.read_csv('peliculas.csv')  # Asegúrate de que la ruta al archivo CSV es correcta
-    return data
+with st.sidebar:
+    openai_api_key = st.text_input("OpenAI API Key", key="chatbot_api_key", type="password")
+    "[Get an OpenAI API key](https://platform.openai.com/account/api-keys)"
+    "[View the source code](https://github.com/streamlit/llm-examples/blob/main/Chatbot.py)"
+    "[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/streamlit/llm-examples?quickstart=1)"
 
-data = load_data()
+st.title("💬 Chatbot")
+st.caption("🚀 A Streamlit chatbot powered by OpenAI")
+if "messages" not in st.session_state:
+    st.session_state["messages"] = [{"role": "assistant", "content": "How can I help you?"}]
 
-# Título de la aplicación
-st.title('Filtro de Películas')
+for msg in st.session_state.messages:
+    st.chat_message(msg["role"]).write(msg["content"])
 
-# Filtros
-genre = st.sidebar.multiselect('Seleccione el género:', options=data['Genre'].unique())
-director = st.sidebar.multiselect('Seleccione el director:', options=data['Director'].unique())
-year = st.sidebar.slider('Seleccione el año:', int(data['Year'].min()), int(data['Year'].max()), (int(data['Year'].min()), int(data['Year'].max())))
+if prompt := st.chat_input():
+    if not openai_api_key:
+        st.info("Please add your OpenAI API key to continue.")
+        st.stop()
 
-# Filtrar datos
-filtered_data = data
-if genre:
-    filtered_data = filtered_data[filtered_data['Genre'].isin(genre)]
-if director:
-    filtered_data = filtered_data[filtered_data['Director'].isin(director)]
-if year:
-    filtered_data = filtered_data[(filtered_data['Year'] >= year[0]) & (filtered_data['Year'] <= year[1])]
-
-# Mostrar total de películas
-total_movies = len(filtered_data)
-st.header(f'Total de Películas Filtradas: {total_movies}')
-# Gráfico de barras por género
-genre_count = filtered_data['Director'].value_counts()
-fig, ax = plt.subplots()
-genre_count.plot(kind='bar', ax=ax)
-ax.set_title('Número de Películas por Director')
-ax.set_xlabel('Director')
-ax.set_ylabel('Número de Películas')
-st.pyplot(fig)
-
-# Mostrar datos filtrados
-st.write('Datos Filtrados', filtered_data)
+    client = OpenAI(api_key=openai_api_key)
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    st.chat_message("user").write(prompt)
+    response = client.chat.completions.create(model="gpt-3.5-turbo", messages=st.session_state.messages)
+    msg = response.choices[0].message.content
+    st.session_state.messages.append({"role": "assistant", "content": msg})
+    st.chat_message("assistant").write(msg)
