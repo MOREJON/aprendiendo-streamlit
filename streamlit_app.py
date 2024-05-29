@@ -37,7 +37,7 @@ genre_count = filtered_data['Director'].value_counts()
 fig, ax = plt.subplots()
 genre_count.plot(kind='bar', ax=ax)
 ax.set_title('Número de Películas por Director')
-ax.set_xlabel('Género')
+ax.set_xlabel('Director')
 ax.set_ylabel('Número de Películas')
 st.pyplot(fig)
 
