@@ -1,40 +1,32 @@
+import streamlit as st
+import pandas as pd
 import altair as alt
 import numpy as np
-import pandas as pd
-import streamlit as st
 
-"""
-# Welcome to Morejon!
+# Cargar los datos
+@st.cache
+def load_data():
+    data = pd.read_csv('peliculas.csv')  # Asegúrate de que la ruta al archivo CSV es correcta
+    return data
 
-Edit `/streamlit_app.py` to customize this app to your heart's desire :heart:.
-If you have any questions, checkout our [documentation](https://docs.streamlit.io) and [community
-forums](https://discuss.streamlit.io).
+data = load_data()
 
-In the meantime, below is an example of what you can do with just a few lines of code:
-"""
+# Título de la aplicación
+st.title('Filtro de Películas')
 
-num_points = st.slider("Number of points in spiral", 1, 10000, 1100)
-num_turns = st.slider("Number of turns in spiral", 1, 300, 31)
+# Filtros
+genre = st.sidebar.multiselect('Seleccione el género:', options=data['Genre'].unique())
+director = st.sidebar.multiselect('Seleccione el director:', options=data['Director'].unique())
+year = st.sidebar.slider('Seleccione el año:', int(data['Year'].min()), int(data['Year'].max()), (int(data['Year'].min()), int(data['Year'].max())))
 
-indices = np.linspace(0, 1, num_points)
-theta = 2 * np.pi * num_turns * indices
-radius = indices
+# Filtrar datos
+filtered_data = data
+if genre:
+    filtered_data = filtered_data[filtered_data['Genre'].isin(genre)]
+if director:
+    filtered_data = filtered_data[filtered_data['Director'].isin(director)]
+if year:
+    filtered_data = filtered_data[(filtered_data['Year'] >= year[0]) & (filtered_data['Year'] <= year[1])]
 
-x = radius * np.cos(theta)
-y = radius * np.sin(theta)
-
-df = pd.DataFrame({
-    "x": x,
-    "y": y,
-    "idx": indices,
-    "rand": np.random.randn(num_points),
-})
-
-st.altair_chart(alt.Chart(df, height=700, width=700)
-    .mark_point(filled=True)
-    .encode(
-        x=alt.X("x", axis=None),
-        y=alt.Y("y", axis=None),
-        color=alt.Color("idx", legend=None, scale=alt.Scale()),
-        size=alt.Size("rand", legend=None, scale=alt.Scale(range=[1, 150])),
-    ))
+# Mostrar datos filtrados
+st.write('Datos Filtrados', filtered_data)
