@@ -28,5 +28,9 @@ if director:
 if year:
     filtered_data = filtered_data[(filtered_data['Year'] >= year[0]) & (filtered_data['Year'] <= year[1])]
 
+# Mostrar total de películas
+total_movies = len(filtered_data)
+st.header(f'Total de Películas Filtradas: {total_movies}')
+
 # Mostrar datos filtrados
 st.write('Datos Filtrados', filtered_data)
