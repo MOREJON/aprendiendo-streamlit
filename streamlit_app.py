@@ -33,10 +33,10 @@ if year:
 total_movies = len(filtered_data)
 st.header(f'Total de Películas Filtradas: {total_movies}')
 # Gráfico de barras por género
-genre_count = filtered_data['Genre'].value_counts()
+genre_count = filtered_data['Actors'].value_counts()
 fig, ax = plt.subplots()
 genre_count.plot(kind='bar', ax=ax)
-ax.set_title('Número de Películas por Género')
+ax.set_title('Número de Películas por Director')
 ax.set_xlabel('Género')
 ax.set_ylabel('Número de Películas')
 st.pyplot(fig)
