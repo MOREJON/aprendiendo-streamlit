@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 import numpy as np
+import matplotlib.pyplot as plt
 
 # Cargar los datos
 @st.cache
@@ -31,6 +32,14 @@ if year:
 # Mostrar total de películas
 total_movies = len(filtered_data)
 st.header(f'Total de Películas Filtradas: {total_movies}')
+# Gráfico de barras por género
+genre_count = filtered_data['Genre'].value_counts()
+fig, ax = plt.subplots()
+genre_count.plot(kind='bar', ax=ax)
+ax.set_title('Número de Películas por Género')
+ax.set_xlabel('Género')
+ax.set_ylabel('Número de Películas')
+st.pyplot(fig)
 
 # Mostrar datos filtrados
 st.write('Datos Filtrados', filtered_data)
